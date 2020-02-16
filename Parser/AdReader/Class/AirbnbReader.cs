@@ -128,7 +128,13 @@ namespace AirbnbParser.Parser.AdReader.Class
             complitLoad = false;
             var ready = false;
 
-            string url = string.Format(filterUrlApi);
+            string placetype = "";
+            foreach(var pt in room_type)
+            {
+                placetype += "&room_types%5B%5D=" + pt.Value;
+            }
+
+            string url = string.Format(filterUrlApi,place.Item2, "&price_max="+price_max, "&price_min=" + price_min, place.Item1, "&checkin="+cheakin.ToString("yyyy-MM-dd"), "&checkout=" + cheakout.ToString("yyyy-MM-dd"), placetype);
 
             browser.Load(url);
             while (!complitLoad || !ready)
@@ -147,7 +153,7 @@ namespace AirbnbParser.Parser.AdReader.Class
                                 Ad ad_item = new Ad();
                                 ad_item.url = string.Format(roomUrl,item["badget"]["id"]);
                                 ad_item.country = (string)item["badget"]["localized_city"];
-                                ad_item.data = "";
+                                ad_item.data = cheakin.ToString("yy-MM-dd")+" " + cheakout.ToString("yyyy-MM-dd");
                                 ad_item.price = (string)item["pricing_quote"]["rate"]["amount"];
                                 ad_item.type = (string)item["badget"]["space_type"];
                                 ad_item.feedbeack = (string)item["badget"]["reviews_count"];
