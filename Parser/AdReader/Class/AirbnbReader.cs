@@ -224,6 +224,7 @@ namespace AirbnbParser.Parser.AdReader.Class
             return rezalt;
         }
 
+
         private void BrowserLoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
         {
             if (!e.IsLoading)
