@@ -17,7 +17,7 @@ namespace AirbnbParser
     {
 
         private string savePatch = "";
-
+        private object synObj = new object();
         public Form1()
         {
             InitializeComponent();
@@ -90,11 +90,22 @@ namespace AirbnbParser
         {
             if (comboBox1.Text.Length >= 3)
             {
-                var parser = new AirbnbReader();
-                var location = parser.GetLocation(comboBox1.Text);
-                comboBox1.DataSource = location;
-                comboBox1.DisplayMember = "Item2";
-                comboBox1.ValueMember = "Item1";
+                Task load = Task.Run(() =>
+            {
+                lock (synObj)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        var parser = new AirbnbReader();
+                        var location = parser.GetLocation(comboBox1.Text);
+                        comboBox1.DataSource = location;
+                        comboBox1.DisplayMember = "Item2";
+                        comboBox1.ValueMember = "Item1";
+                    }));
+                    
+                    
+                }
+            });
             }
         }
 

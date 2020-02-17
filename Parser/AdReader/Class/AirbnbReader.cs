@@ -161,9 +161,10 @@ namespace AirbnbParser.Parser.AdReader.Class
 
             while (!load_all_page)
             {
-                string url = string.Format(filterUrlApi, "&checkin=" + cheakin.ToString("yyyy-MM-dd"), "&checkout=" + cheakout.ToString("yyyy-MM-dd"), 20000, 20000, 20000, place.Item1, "&price_max=" + price_max, "&price_min=" + price_min, place.Item2, placetype, "&items_offset=" + offset);
+                string url = string.Format(filterUrlApi, "&checkin=" + cheakin.ToString("yyyy-MM-dd"), "&checkout=" + cheakout.ToString("yyyy-MM-dd"), 20, 20, 20, place.Item1, "&price_max=" + price_max, "&price_min=" + price_min, place.Item2, placetype, "&items_offset=" + offset);
                 complitLoad = false;
                 ready = false;
+
                 browser.Load(url);
                 while (!complitLoad || !ready)
                 {
@@ -171,7 +172,8 @@ namespace AirbnbParser.Parser.AdReader.Class
                     {
                         string rez_str = rezaltObj as string;
                         rez_str = Regex.Replace(rez_str, "<.*?>", String.Empty);
-                        JObject jObject = JObject.Parse(rez_str);
+                        JObject jObject = null;
+                        jObject = JObject.Parse(rez_str);
                         foreach (var item_tab in jObject["explore_tabs"])
                         {
                             foreach (var item_sec in item_tab["sections"])
@@ -204,7 +206,13 @@ namespace AirbnbParser.Parser.AdReader.Class
                             {
                                 if (multipage)
                                 {
-                                    offset = int.Parse(item_tab["pagination_metadata"]["items_offset"].ToString());
+                                    if (item_tab["pagination_metadata"]["items_offset"] != null)
+                                    {
+                                        offset = int.Parse(item_tab["pagination_metadata"]["items_offset"].ToString());
+                                    }else
+                                    {
+                                        load_all_page = true;
+                                    }
                                 }
                             }
                         }
@@ -229,17 +237,25 @@ namespace AirbnbParser.Parser.AdReader.Class
         {
             if (!e.IsLoading)
             {
-                browser.LoadingStateChanged -= BrowserLoadingStateChanged;
-                SettingsManager sm = SettingsManager.getInstance();
+                //browser.LoadingStateChanged -= BrowserLoadingStateChanged;
+                //SettingsManager sm = SettingsManager.getInstance();
 
-                string script_add_jquery = "document.getElementsByTagName ('html')[0].innerHTML";
-                var scriptTask = browser.EvaluateScriptAsync(script_add_jquery);
-
-                scriptTask.ContinueWith(t =>
+                if (browser.CanExecuteJavascriptInMainFrame)
                 {
-                    rezaltObj = t.Result.Result;
+                    string script_add_jquery = "document.getElementsByTagName ('html')[0].innerHTML";
+                    var scriptTask = browser.EvaluateScriptAsync(script_add_jquery);
+
+                    scriptTask.ContinueWith(t =>
+                    {
+                        rezaltObj = t.Result.Result;
+                        complitLoad = true;
+                    });
+                }
+                else
+                {
+                    rezaltObj = "{}";
                     complitLoad = true;
-                });
+                }
             }
         }
 
