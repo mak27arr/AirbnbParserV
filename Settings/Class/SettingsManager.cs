@@ -27,7 +27,7 @@ namespace ChatBot.Settings.Class
 
         private SettingsManager()
         {
-            License.LicenseCheak.Cheak();
+            AirbnbParser.License.LicenseCheak.Cheak();
             if (setting == null)
                 LoadSettings();
         }

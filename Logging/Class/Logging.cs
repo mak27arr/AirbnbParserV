@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Text;
+using AirbnbParser.License;
 
 namespace ChatBot.Logging.Class
 {
@@ -13,7 +14,7 @@ namespace ChatBot.Logging.Class
         private static long log_file_max_size = 20 * 1024 * 1024;//20Mb
         public void Msg(string msg, Object obj = null)
         {
-            License.LicenseCheak.Cheak();
+            AirbnbParser.License.LicenseCheak.Cheak();
             string patc = getLogFileLocation();
             string msg_formated = formatMg(msg, obj);
             cheakLogFileSize();

@@ -28,7 +28,7 @@ namespace AirbnbParser.Parser.AdReader.Class
         private static object objSyn = new object();
 
         private string base_url = "https://www.airbnb.com.ua/s/homes";
-        private string getCityUrl = "https://www.airbnb.com.ua/api/v2/autocompletes?country=UA&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&language=EU&locale=uk&num_results=5&user_input={0}&api_version=1.2.6&vertical_refinement=homes&region=-1&options=should_show_stays";
+        private string getCityUrl = "https://www.airbnb.com.ua/api/v2/autocompletes?country=UA&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&language=EU&locale=us&num_results=5&user_input={0}&api_version=1.2.6&vertical_refinement=homes&region=-1&options=should_show_stays";
         private string cityName = "https://www.airbnb.com.ua/s/{0}/homes?";
         private string FullUrl = "https://www.airbnb.com.ua/s/homes?refinement_paths%5B%5D=%2Fhomes&current_tab_id=home_tab&selected_tab_id=home_tab&screen_size=large&hide_dates_and_guests_filters=false&checkin=2020-03-01&checkout=2020-03-31&search_type=filter_change&room_types%5B%5D=Entire%20home%2Fapt&room_types%5B%5D=Private%20room&room_types%5B%5D=Hotel%20room&room_types%5B%5D=Shared%20room&price_min=205&price_max=13551";
         //{5}{0} - place
@@ -47,7 +47,7 @@ namespace AirbnbParser.Parser.AdReader.Class
         //{2}{3}{4}{7} - per_page
         //{10}{8} - offset &items_offset=20
 
-        private string filterUrlApi = "https://www.airbnb.com.ua/api/v2/explore_tabs?_format=for_explore_search_web&auto_ib=false{0}{1}&client_session_id=c5dbb7c8-e03b-44e9-8e42-a89b069f93ae&currency=USD&current_tab_id=home_tab&experiences_per_grid={2}&fetch_filters=true&guidebooks_per_grid={3}&has_zero_guest_treatment=true&hide_dates_and_guests_filters=false&is_guided_search=true&is_new_cards_experiment=true&is_standard_search=true&items_per_grid={4}&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&locale=uk&metadata_only=false&place_id={5}{6}{7}&query={8}&query_understanding_enabled=true&refinement_paths%5B%5D=%2Fhomes{9}&satori_version=1.2.6&screen_height=722&screen_size=medium&screen_width=906&search_type=filter_change&selected_tab_id=home_tab&show_groupings=true&supports_for_you_v3=true&timezone_offset=120&version=1.7.3{10}";
+        private string filterUrlApi = "https://www.airbnb.com.ua/api/v2/explore_tabs?_format=for_explore_search_web&auto_ib=false{0}{1}&client_session_id=c5dbb7c8-e03b-44e9-8e42-a89b069f93ae&currency=USD&current_tab_id=home_tab&experiences_per_grid={2}&fetch_filters=true&guidebooks_per_grid={3}&has_zero_guest_treatment=true&hide_dates_and_guests_filters=false&is_guided_search=true&is_new_cards_experiment=true&is_standard_search=true&items_per_grid={4}&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&locale=us&metadata_only=false&place_id={5}{6}{7}&query={8}&query_understanding_enabled=true&refinement_paths%5B%5D=%2Fhomes{9}&satori_version=1.2.6&screen_height=722&screen_size=medium&screen_width=906&search_type=filter_change&selected_tab_id=home_tab&show_groupings=true&supports_for_you_v3=true&timezone_offset=120&version=1.7.3{10}";
         private string roomUrl = "https://www.airbnb.com.ua/rooms/{0}";
 
         private object rezaltObj = null;
@@ -155,42 +155,66 @@ namespace AirbnbParser.Parser.AdReader.Class
                 placetype += "&room_types%5B%5D=" + pt.Value;
             }
 
-            string url = string.Format(filterUrlApi,"&checkin=" + cheakin.ToString("yyyy-MM-dd"), "&checkout=" + cheakout.ToString("yyyy-MM-dd"),20000,20000,20000,place.Item1,"&price_max="+price_max, "&price_min=" + price_min, place.Item2, placetype,"");
+            bool multipage = false;
+            bool load_all_page = false;
+            int offset = 0;
 
-            browser.Load(url);
-            while (!complitLoad || !ready)
+            while (!load_all_page)
             {
-                if (complitLoad)
+                string url = string.Format(filterUrlApi, "&checkin=" + cheakin.ToString("yyyy-MM-dd"), "&checkout=" + cheakout.ToString("yyyy-MM-dd"), 20000, 20000, 20000, place.Item1, "&price_max=" + price_max, "&price_min=" + price_min, place.Item2, placetype, "&items_offset=" + offset);
+                complitLoad = false;
+                ready = false;
+                browser.Load(url);
+                while (!complitLoad || !ready)
                 {
-                    string rez_str = rezaltObj as string;
-                    rez_str = Regex.Replace(rez_str, "<.*?>", String.Empty);
-                    JObject jObject = JObject.Parse(rez_str);
-                    foreach (var item_tab in jObject["explore_tabs"])
+                    if (complitLoad)
                     {
-                        foreach (var item_sec in item_tab["sections"])
+                        string rez_str = rezaltObj as string;
+                        rez_str = Regex.Replace(rez_str, "<.*?>", String.Empty);
+                        JObject jObject = JObject.Parse(rez_str);
+                        foreach (var item_tab in jObject["explore_tabs"])
                         {
-                            if (item_sec["listings"] != null)
+                            foreach (var item_sec in item_tab["sections"])
                             {
-                                foreach (var item in item_sec["listings"])
+                                if (item_sec["listings"] != null)
                                 {
-                                    Ad ad_item = new Ad();
-                                    ad_item.url = string.Format(roomUrl, item["listing"]["id"]);
-                                    ad_item.country = (string)item["listing"]["localized_city"];
-                                    ad_item.data = cheakin.ToString("yy-MM-dd") + " " + cheakout.ToString("yyyy-MM-dd");
-                                    ad_item.price = (string)item["pricing_quote"]["rate"]["amount"];
-                                    ad_item.type = (string)item["listing"]["space_type"];
-                                    ad_item.feedbeack = (string)item["listing"]["reviews_count"];
-                                    ad_item.host = string.Format("users/show/{0}", item["listing"]["user"]["id"]);
-                                    rezalt.Add(ad_item);
+                                    if (int.Parse(item_sec["localized_listing_count"].ToString()) > 49)
+                                    {
+                                        multipage = true;
+                                    }
+                                    foreach (var item in item_sec["listings"])
+                                    {
+                                        Ad ad_item = new Ad();
+                                        ad_item.url = string.Format(roomUrl, item["listing"]["id"]);
+                                        ad_item.country = (string)item["listing"]["localized_city"];
+                                        ad_item.data = cheakin.ToString("yy-MM-dd") + " " + cheakout.ToString("yyyy-MM-dd");
+                                        ad_item.price = (string)item["pricing_quote"]["rate"]["amount"];
+                                        ad_item.type = (string)item["listing"]["space_type"];
+                                        ad_item.feedbeack = (string)item["listing"]["reviews_count"];
+                                        ad_item.host = string.Format("users/show/{0}", item["listing"]["user"]["id"]);
+                                        rezalt.Add(ad_item);
+                                    }
+                                }
+                            }
+                            if (item_tab["pagination_metadata"]["has_next_page"].ToString()=="false")
+                            {
+                                load_all_page = true;
+                            }
+                            else
+                            {
+                                if (multipage)
+                                {
+                                    offset = int.Parse(item_tab["pagination_metadata"]["items_offset"].ToString());
                                 }
                             }
                         }
+                        ready = true;
+                        complitLoad = true;
                     }
-                    ready = true;
-                }
-                else
-                {
-                    Thread.Sleep(50);
+                    else
+                    {
+                        Thread.Sleep(50);
+                    }
                 }
             }
             if (LicenseCheak.IsTrialCheak())
