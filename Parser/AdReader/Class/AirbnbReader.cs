@@ -17,6 +17,7 @@ using AirbnbParser.Parser.AdReader.Interfaces;
 using AirbnbParser.Settings.Class;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+using AirbnbParser.License;
 
 namespace AirbnbParser.Parser.AdReader.Class
 {
@@ -55,6 +56,7 @@ namespace AirbnbParser.Parser.AdReader.Class
 
         public AirbnbReader()
         {
+            LicenseCheak.Cheak();
             this.Init();
         }
 
@@ -190,6 +192,10 @@ namespace AirbnbParser.Parser.AdReader.Class
                 {
                     Thread.Sleep(50);
                 }
+            }
+            if (LicenseCheak.IsTrialCheak())
+            {
+                rezalt = rezalt.Take(10).ToList();
             }
             return rezalt;
         }
