@@ -17,6 +17,16 @@ namespace AirbnbParser.Parser.AdReader
         {
             return new RoomType(value);
         }
+        public static List <Tuple<string,string>>GetAllTypeList()
+        {
+            List<Tuple<string, string>> type = new List<Tuple<string, string>>();
+            type.Add(new Tuple<string, string>("EntirehomeFapt", "Entire%20home%2Fapt"));
+            type.Add(new Tuple<string, string>("Privateroom", "Private%20room"));
+            type.Add(new Tuple<string, string>("Hotelroom", "Hotel%20room"));
+            type.Add(new Tuple<string, string>("Sharedroom", "Shared%20room"));
+            return type;
+        }
+
         public override string ToString()
         {
             return Value;

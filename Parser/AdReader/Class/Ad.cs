@@ -13,5 +13,10 @@ namespace AirbnbParser.Parser.AdReader.Class
         public string type;
         public string feedbeack;
         public string host;
+
+        public override string ToString()
+        {
+            return url +" | " + country + " | " + data + " | " + price + " | " + type + " | " + feedbeack + " | " + host;
+        }
     }
 }

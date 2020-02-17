@@ -21,7 +21,7 @@
             this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.comboBox2RoomType = new System.Windows.Forms.ComboBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -74,11 +74,11 @@
             // 
             // comboBox2
             // 
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(130, 92);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(134, 21);
-            this.comboBox2.TabIndex = 5;
+            this.comboBox2RoomType.FormattingEnabled = true;
+            this.comboBox2RoomType.Location = new System.Drawing.Point(130, 92);
+            this.comboBox2RoomType.Name = "comboBox2RoomType";
+            this.comboBox2RoomType.Size = new System.Drawing.Size(134, 21);
+            this.comboBox2RoomType.TabIndex = 5;
             // 
             // textBox3
             // 
@@ -173,7 +173,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.comboBox2);
+            this.Controls.Add(this.comboBox2RoomType);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.dateTimePicker2);
@@ -194,7 +194,7 @@
         private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox comboBox2RoomType;
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
